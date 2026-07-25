@@ -1,0 +1,6 @@
+,Accuracy,Weighted F1,Macro F1
+Baseline (majority class),59.16,43.98,24.78
+Logistic Regression,67.54,66.18,58.64
+Linear Regression (binned),68.59,66.88,60.38
+Decision Tree,53.4,52.66,42.93
+Random Forest,63.35,60.94,51.23
