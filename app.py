@@ -431,16 +431,44 @@ def page_student_explorer(df):
             for tip in tips:
                 st.write(f"- {tip}")
 
-    # ----------------------------- BOTTOM ROW ----------------------------- #
+# ----------------------------- BOTTOM ROW ----------------------------- #
     st.divider()
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Final Grade", f"{student['FinalGrade']:.1f}")
     c2.metric("Actual Level", str(student["PerformanceLevel"]))
-    c3.metric(
-        "Predicted Level", str(student["PredictedLevel"]),
-        delta="Match" if student["PerformanceLevel"] == student["PredictedLevel"] else "Mismatch",
-        delta_color="off",
-    )
+
+    is_match = student["PerformanceLevel"] == student["PredictedLevel"]
+    badge_color = "rgba(76, 175, 80, 0.25)" if is_match else "rgba(244, 67, 54, 0.25)"
+    badge_text_color = "#8fd694" if is_match else "#f39a94"
+    badge_label = "Match" if is_match else "Mismatch"
+
+    with c3:
+        st.markdown(
+            f"""
+            <div style="
+                padding: 1rem 1.2rem;
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+            ">
+                <p style="margin:0; font-size:1rem; color: rgba(255,255,255,0.6);">Predicted Level</p>
+                <div style="display:flex; align-items:center; gap:0.6rem; margin-top:0.3rem;">
+                    <span style="font-size:2.1rem; font-weight:600;">{student['PredictedLevel']}</span>
+                    <span style="
+                        background:{badge_color};
+                        color:{badge_text_color};
+                        padding:0.2rem 0.6rem;
+                        border-radius:999px;
+                        font-size:0.85rem;
+                        font-weight:500;
+                        white-space:nowrap;
+                    ">{badge_label}</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
     c4.metric("Attendance", f"{student['AttendanceRate']:.1f}%")
 
 # --------------------------------------------------------------------------- #
