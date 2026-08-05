@@ -329,6 +329,12 @@ def page_student_explorer(df):
                 padding-top: 0.2rem;
                 margin-top: 0;
             }
+            /* Prevent widget labels (selectbox/text_input captions) from clipping at the top */
+            div[data-testid="stWidgetLabel"] p {
+                line-height: 1.4 !important;
+                overflow: visible !important;
+                padding-top: 0.15rem;
+            }
             div[data-testid="stMetric"] {
                 padding: 0.3rem 0.5rem;
             }
@@ -377,12 +383,14 @@ def page_student_explorer(df):
             choice = st.selectbox("Select a student", options)
             student = filtered_df.iloc[options.index(choice)]
 
-    # If no student matched, stop here (nothing to show on the right or bottom)
     if student is None:
         return
 
     # ----------------------------- RIGHT COLUMN ----------------------------- #
     with right:
+        # Small spacer so the section label isn't flush against the top edge
+        st.write("")
+
         section = st.selectbox(
             "Select a section",
             ["Student vs. Class Average", "Recommendations"],
