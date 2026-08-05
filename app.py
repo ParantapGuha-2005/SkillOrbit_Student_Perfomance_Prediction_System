@@ -832,8 +832,8 @@ def page_predict(model, scaler, encoders):
             return
 
         box_style = """
-            height:85px;
-            padding:0.6rem 1rem;
+            height:80px;
+            padding:0.5rem 1rem;
             background:rgba(255,255,255,0.03);
             border-radius:10px;
             border:1px solid rgba(255,255,255,0.08);
@@ -847,10 +847,10 @@ def page_predict(model, scaler, encoders):
             st.markdown(
                 f"""
                 <div style="{box_style}">
-                    <p style="margin:0;font-size:0.85rem;color:rgba(255,255,255,0.6);">
+                    <p style="margin:0;font-size:0.8rem;color:rgba(255,255,255,0.6);">
                         Predicted Performance Level
                     </p>
-                    <span style="font-size:1.5rem;">{result['predicted_level']}</span>
+                    <span style="font-size:1.4rem;">{result['predicted_level']}</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -859,23 +859,22 @@ def page_predict(model, scaler, encoders):
             st.markdown(
                 f"""
                 <div style="{box_style}">
-                    <p style="margin:0;font-size:0.85rem;color:rgba(255,255,255,0.6);">
+                    <p style="margin:0;font-size:0.8rem;color:rgba(255,255,255,0.6);">
                         Model Confidence
                     </p>
-                    <span style="font-size:1.5rem;">{result['confidence']:.1%}</span>
+                    <span style="font-size:1.4rem;">{result['confidence']:.1%}</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-        st.write("")
-
         view = st.selectbox("Select a view", ["Probability Chart", "Recommendations"])
 
         if view == "Probability Chart":
-            st.bar_chart(result["prob_df"])
+            # Explicit height keeps the Vega-Lite chart from rendering taller than the viewport
+            st.bar_chart(result["prob_df"], height=260)
         else:
-            st.markdown("**\U0001F4A1 Recommendations**")  #💡
+            st.markdown("**\U0001F4A1 Recommendations**")  # 💡
             tips = generate_recommendations(
                 result["attendance_rate"], result["study_hours"], result["previous_grade"],
                 result["extracurricular"], result["parental_support"], result["predicted_level"],
