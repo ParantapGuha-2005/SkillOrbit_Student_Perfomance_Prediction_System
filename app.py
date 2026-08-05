@@ -540,11 +540,12 @@ def page_factor_analysis(df):
         st.markdown(
             f"""
             <h3 style="
-                margin-top: 0;
-                margin-bottom: 0.8rem;
-                line-height: 1.25;
+                margin-top: 1rem;
+                margin-bottom: 0.5rem;
+                line-height: 1.2;
                 font-size: 1.4rem;
-                font-weight: 600;
+                font-weight: calc(1.3rem + 0.6vw);
+                font-family: Arial;
             ">
                 {factor} by<br>
                 Performance Level
