@@ -578,7 +578,7 @@ def page_trends(df):
                 padding-top: 0.15rem;
             }
             div[data-testid="stImage"] img {
-                max-height: 44vh;
+                max-height: 46vh;
                 width: auto;
                 margin: 0 auto;
                 display: block;
@@ -590,33 +590,37 @@ def page_trends(df):
 
     st.header("\U0001F4C9 Performance Trends")  # 📉
 
-    st.subheader("Previous Grade vs. Final Grade")
-    fig, ax = plt.subplots(figsize=(6, 3.6))
-    sns.scatterplot(
-        data=df, x="PreviousGrade", y="FinalGrade", hue="PerformanceLevel",
-        hue_order=LEVEL_ORDER, palette=LEVEL_COLORS, alpha=0.6, ax=ax,
-    )
-    ax.set_xlabel("Previous Grade")
-    ax.set_ylabel("Final Grade")
-    fig.tight_layout()
-    st.pyplot(fig, use_container_width=False)
-    plt.close(fig)
+    col1, col2 = st.columns(2)
 
-    st.subheader("Attendance & Study Hours Trend")
-    bucket_col = st.radio("Bucket by", ["AttendanceRate", "StudyHoursPerWeek"], horizontal=True)
+    with col1:
+        st.subheader("Previous Grade vs. Final Grade")
+        fig, ax = plt.subplots(figsize=(5.2, 3.6))
+        sns.scatterplot(
+            data=df, x="PreviousGrade", y="FinalGrade", hue="PerformanceLevel",
+            hue_order=LEVEL_ORDER, palette=LEVEL_COLORS, alpha=0.6, ax=ax,
+        )
+        ax.set_xlabel("Previous Grade")
+        ax.set_ylabel("Final Grade")
+        fig.tight_layout()
+        st.pyplot(fig, use_container_width=False)
+        plt.close(fig)
 
-    bucketed = pd.cut(df[bucket_col], bins=8)
-    trend = df.groupby(bucketed, observed=True)["FinalGrade"].mean().reset_index()
-    trend[bucket_col] = trend[bucket_col].astype(str)
+    with col2:
+        st.subheader("Attendance & Study Hours Trend")
+        bucket_col = st.radio("Bucket by", ["AttendanceRate", "StudyHoursPerWeek"], horizontal=True)
 
-    fig, ax = plt.subplots(figsize=(6.5, 3.2))
-    sns.lineplot(data=trend, x=bucket_col, y="FinalGrade", marker="o", ax=ax)
-    ax.set_xlabel(bucket_col)
-    ax.set_ylabel("Average Final Grade")
-    ax.tick_params(axis="x", rotation=40)
-    fig.tight_layout()
-    st.pyplot(fig, use_container_width=False)
-    plt.close(fig)
+        bucketed = pd.cut(df[bucket_col], bins=8)
+        trend = df.groupby(bucketed, observed=True)["FinalGrade"].mean().reset_index()
+        trend[bucket_col] = trend[bucket_col].astype(str)
+
+        fig, ax = plt.subplots(figsize=(5.2, 3.2))
+        sns.lineplot(data=trend, x=bucket_col, y="FinalGrade", marker="o", ax=ax)
+        ax.set_xlabel(bucket_col)
+        ax.set_ylabel("Average Final Grade")
+        ax.tick_params(axis="x", rotation=40)
+        fig.tight_layout()
+        st.pyplot(fig, use_container_width=False)
+        plt.close(fig)
 
 
 # --------------------------------------------------------------------------- #
