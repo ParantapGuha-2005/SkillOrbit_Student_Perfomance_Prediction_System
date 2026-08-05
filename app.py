@@ -430,59 +430,60 @@ def page_student_explorer(df):
             )
             for tip in tips:
                 st.write(f"- {tip}")
+                
+    # ----------------------------- BOTTOM ROW ----------------------------- #
+    st.divider()
 
-st.divider()
+    # Give the Predicted card more width
+    c1, c2, c3, c4 = st.columns([0.9, 0.9, 1.3, 0.9], gap="small")
 
-# Give the Predicted card more width
-c1, c2, c3, c4 = st.columns([0.9, 0.9, 1.3, 0.9], gap="small")
+    c1.metric("Final Grade", f"{student['FinalGrade']:.1f}")
+    c2.metric("Actual Level", str(student["PerformanceLevel"]))
 
-c1.metric("Final Grade", f"{student['FinalGrade']:.1f}")
-c2.metric("Actual Level", str(student["PerformanceLevel"]))
+    is_match = student["PerformanceLevel"] == student["PredictedLevel"]
+    badge_color = "rgba(76, 175, 80, 0.25)" if is_match else "rgba(244, 67, 54, 0.25)"
+    badge_text_color = "#8fd694" if is_match else "#f39a94"
+    badge_label = "Match" if is_match else "Mismatch"
 
-is_match = student["PerformanceLevel"] == student["PredictedLevel"]
-badge_color = "rgba(76, 175, 80, 0.25)" if is_match else "rgba(244, 67, 54, 0.25)"
-badge_text_color = "#8fd694" if is_match else "#f39a94"
-badge_label = "Match" if is_match else "Mismatch"
+    with c3:
+        st.markdown(
+            f"""
+            <div style="
+                height:120px;
+                padding:1rem 1.2rem;
+                background:rgba(255,255,255,0.03);
+                border-radius:10px;
+                border:1px solid rgba(255,255,255,0.08);
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+            ">
+                <p style="margin:0;font-size:1rem;color:rgba(255,255,255,0.6);">
+                    Predicted Level
+                </p>
 
-with c3:
-    st.markdown(
-        f"""
-        <div style="
-            height:120px;
-            padding:1rem 1.2rem;
-            background:rgba(255,255,255,0.03);
-            border-radius:10px;
-            border:1px solid rgba(255,255,255,0.08);
-            display:flex;
-            flex-direction:column;
-            justify-content:center;
-        ">
-            <p style="margin:0;font-size:1rem;color:rgba(255,255,255,0.6);">
-                Predicted Level
-            </p>
+                <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.4rem;">
+                    <span style="font-size:2.1rem;">
+                        {student['PredictedLevel']}
+                    </span>
 
-            <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.4rem;">
-                <span style="font-size:2.1rem;">
-                    {student['PredictedLevel']}
-                </span>
-
-                <span style="
-                    background:{badge_color};
-                    color:{badge_text_color};
-                    padding:0.25rem 0.7rem;
-                    border-radius:999px;
-                    font-size:0.8rem;
-                    white-space:nowrap;
-                ">
-                    {badge_label}
-                </span>
+                    <span style="
+                        background:{badge_color};
+                        color:{badge_text_color};
+                        padding:0.25rem 0.7rem;
+                        border-radius:999px;
+                        font-size:0.8rem;
+                        white-space:nowrap;
+                    ">
+                        {badge_label}
+                    </span>
+                </div>
             </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+            """,
+            unsafe_allow_html=True,
+        )
 
-c4.metric("Attendance", f"{student['AttendanceRate']:.1f}%")
+    c4.metric("Attendance", f"{student['AttendanceRate']:.1f}%")
 
 # --------------------------------------------------------------------------- #
 # Page: Factor Analysis
