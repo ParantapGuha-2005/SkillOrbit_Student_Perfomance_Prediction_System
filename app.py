@@ -343,7 +343,6 @@ def page_student_explorer(df):
             hr {
                 margin: 1.2rem 0 1.5rem 0 !important;
             }
-            /* Give the bottom metrics section more visual weight so it doesn't feel like empty space */
             div[data-testid="stMetric"] {
                 padding: 1rem 1.2rem;
                 background: rgba(255, 255, 255, 0.03);
@@ -430,11 +429,10 @@ def page_student_explorer(df):
             )
             for tip in tips:
                 st.write(f"- {tip}")
-                
+
     # ----------------------------- BOTTOM ROW ----------------------------- #
     st.divider()
 
-    # Give the Predicted card more width
     c1, c2, c3, c4 = st.columns([0.9, 0.9, 1.3, 0.9], gap="small")
 
     c1.metric("Final Grade", f"{student['FinalGrade']:.1f}")
@@ -461,12 +459,10 @@ def page_student_explorer(df):
                 <p style="margin:0;font-size:1rem;color:rgba(255,255,255,0.6);">
                     Predicted Level
                 </p>
-
                 <div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.4rem;">
                     <span style="font-size:2.1rem;">
                         {student['PredictedLevel']}
                     </span>
-
                     <span style="
                         background:{badge_color};
                         color:{badge_text_color};
@@ -480,7 +476,6 @@ def page_student_explorer(df):
                 </div>
             </div>
             """,
-            html,
             unsafe_allow_html=True,
         )
 
