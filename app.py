@@ -107,10 +107,11 @@ def page_overview(df, comparison_df):
     high_pct = (df["PerformanceLevel"] == "High").mean() * 100
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Students", f"{n_students:,}")
-    c2.metric("Avg. Final Grade", f"{avg_grade:.1f}")
-    c3.metric("Avg. Attendance", f"{avg_attendance:.1f}%")
-    c4.metric("Share in 'High'", f"{high_pct:.1f}%")
+    c1.metric("Total Students", f"{n_students:,}", help="Number of students in dataset")
+    c2.metric("Average Final Grade", f"{avg_grade:.1f}", help="Mean score across all students")
+    c3.metric("Average Attendance Rate", f"{avg_attendance:.1f}%", help="Mean attendance percentage")
+    c4.metric("High Performers", f"{high_pct:.1f}%", help="Percentage of students in 'High' performance level")
+
 
     st.divider()
 
