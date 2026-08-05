@@ -206,6 +206,26 @@ def generate_recommendations(attendance_rate, study_hours, previous_grade,
 # Page: Overview
 # --------------------------------------------------------------------------- #
 def page_overview(df, comparison_df):
+
+    # --- Tighten default Streamlit spacing so the page fits without scrolling ---
+    st.markdown(
+        """
+        <style>
+            .block-container {
+                padding-top: 1.2rem;
+                padding-bottom: 1rem;
+            }
+            div[data-testid="stMetric"] {
+                padding: 0.3rem 0.5rem;
+            }
+            hr {
+                margin: 0.6rem 0;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     st.header("📊 Overview")
 
     n_students = len(df)
@@ -228,7 +248,7 @@ def page_overview(df, comparison_df):
 
     if view == "Performance Level Distribution":
         st.subheader("Performance Level Distribution")
-        fig, ax = plt.subplots(figsize=(6, 4))
+        fig, ax = plt.subplots(figsize=(6, 3))
         sns.countplot(
             data=df, x="PerformanceLevel", order=LEVEL_ORDER,
             palette=[LEVEL_COLORS[l] for l in LEVEL_ORDER], ax=ax
@@ -248,10 +268,10 @@ def page_overview(df, comparison_df):
         col1, col2 = st.columns([1, 1.2])
 
         with col1:
-            st.dataframe(comparison_df.style.format("{:.2f}"), use_container_width=True)
+            st.dataframe(comparison_df.style.format("{:.2f}"), use_container_width=True, height=280)
 
         with col2:
-            fig, ax = plt.subplots(figsize=(6, 4))
+            fig, ax = plt.subplots(figsize=(6, 3))
             (comparison_df / 100).plot(kind="bar", ax=ax, colormap="viridis")
             ax.set_ylabel("Score")
             ax.set_ylim(0, 1.0)
@@ -265,7 +285,6 @@ def page_overview(df, comparison_df):
         "per-subject scores, so the analysis below is organized by contributing factor "
         "(attendance, study hours, previous grade, etc.) rather than by subject."
     )
-
 
 # --------------------------------------------------------------------------- #
 # Page: Student Explorer (comparison)
