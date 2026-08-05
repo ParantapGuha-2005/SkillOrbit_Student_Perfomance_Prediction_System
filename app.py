@@ -475,8 +475,42 @@ def page_student_explorer(df):
 # Page: Factor Analysis
 # --------------------------------------------------------------------------- #
 def page_factor_analysis(df):
-    st.header("📈 Factor Analysis")
-    st.caption("How each contributing factor relates to performance level (no per-subject breakdown exists in this dataset).")
+
+    st.markdown(
+        """
+        <style>
+            .block-container {
+                padding-top: 2rem;
+                padding-bottom: 0.5rem;
+                overflow: visible;
+            }
+            h1, h3, div[data-testid="stMarkdownContainer"] h1, div[data-testid="stMarkdownContainer"] h3 {
+                line-height: 1.3 !important;
+                overflow: visible !important;
+                padding-top: 0.2rem;
+                margin-top: 0;
+            }
+            div[data-testid="stWidgetLabel"] p {
+                line-height: 1.4 !important;
+                overflow: visible !important;
+                padding-top: 0.15rem;
+            }
+            div[data-testid="stImage"] img {
+                max-height: 46vh;
+                width: auto;
+                margin: 0 auto;
+                display: block;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.header("\U0001F4C8 Factor Analysis")  # 📈
+    st.caption(
+        "How each contributing factor relates to performance level "
+        "(no per-subject breakdown exists in this dataset)."
+    )
 
     factor = st.selectbox(
         "Choose a factor",
@@ -487,25 +521,37 @@ def page_factor_analysis(df):
 
     with col1:
         st.subheader(f"{factor} by Performance Level")
-        fig, ax = plt.subplots(figsize=(6, 4))
-        if df[factor].dtype == object or str(df[factor].dtype).startswith("category") is False and df[factor].nunique() <= 5:
+        fig, ax = plt.subplots(figsize=(5.2, 3.4))
+        is_categorical = (
+            df[factor].dtype == object
+            or (str(df[factor].dtype).startswith("category") is False and df[factor].nunique() <= 5)
+        )
+        if is_categorical:
             pd.crosstab(df[factor], df["PerformanceLevel"], normalize="index")[LEVEL_ORDER].plot(
                 kind="bar", stacked=True, colormap="viridis", ax=ax
             )
             ax.set_ylabel("Proportion")
+            ax.set_xticklabels(ax.get_xticklabels(), rotation=20, ha="right")
         else:
-            sns.boxplot(data=df, x="PerformanceLevel", y=factor, order=LEVEL_ORDER,
-                        palette=[LEVEL_COLORS[l] for l in LEVEL_ORDER], ax=ax)
-        st.pyplot(fig)
+            sns.boxplot(
+                data=df, x="PerformanceLevel", y=factor, order=LEVEL_ORDER,
+                palette=[LEVEL_COLORS[l] for l in LEVEL_ORDER], ax=ax
+            )
+        fig.tight_layout()
+        st.pyplot(fig, use_container_width=False)
+        plt.close(fig)
 
     with col2:
         st.subheader("Correlation with Final Grade")
         numeric_factors = ["AttendanceRate", "StudyHoursPerWeek", "PreviousGrade", "ExtracurricularActivities", "FinalGrade"]
         corr = df[numeric_factors].corr()
-        fig, ax = plt.subplots(figsize=(5, 4))
-        sns.heatmap(corr, annot=True, cmap="coolwarm", center=0, fmt=".2f", ax=ax)
-        st.pyplot(fig)
-
+        fig, ax = plt.subplots(figsize=(4.6, 3.4))
+        sns.heatmap(corr, annot=True, cmap="coolwarm", center=0, fmt=".2f", ax=ax, annot_kws={"size": 8})
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right", fontsize=8)
+        ax.set_yticklabels(ax.get_yticklabels(), rotation=0, fontsize=8)
+        fig.tight_layout()
+        st.pyplot(fig, use_container_width=False)
+        plt.close(fig)
 
 # --------------------------------------------------------------------------- #
 # Page: Performance Trends
