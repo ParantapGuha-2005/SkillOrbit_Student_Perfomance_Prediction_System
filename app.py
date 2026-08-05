@@ -238,7 +238,6 @@ def page_overview(df, comparison_df):
     c2.metric("Average Final Grade", f"{avg_grade:.1f}", help="Mean score across all students")
     c3.metric("Average Attendance Rate", f"{avg_attendance:.1f}%", help="Mean attendance percentage")
     c4.metric("High Performers", f"{high_pct:.1f}%", help="Percentage of students in 'High' performance level")
-
     st.divider()
 
     view = st.selectbox(
@@ -261,10 +260,6 @@ def page_overview(df, comparison_df):
 
     else:
         st.subheader("Model Comparison (Test Set)")
-        st.caption(
-            "Accuracy / Weighted F1 / Macro F1 across all trained models — "
-        )
-
         col1, col2 = st.columns([1, 1.2])
 
         with col1:
