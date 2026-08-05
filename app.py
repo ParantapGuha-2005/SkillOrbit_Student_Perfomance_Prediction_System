@@ -719,6 +719,16 @@ def page_predict(model, scaler, encoders):
             hr {
                 margin: 0.3rem 0 1rem 0 !important;
             }
+            /* Tighten spacing inside the form so all inputs fit compactly */
+            div[data-testid="stForm"] div[data-testid="stVerticalBlock"] > div {
+                margin-bottom: -0.6rem;
+            }
+            div[data-testid="stForm"] {
+                padding: 1.2rem 1.4rem;
+            }
+            div[data-testid="stSlider"] {
+                padding-bottom: 0.4rem;
+            }
         </style>
         """,
         unsafe_allow_html=True,
@@ -772,17 +782,21 @@ def page_predict(model, scaler, encoders):
                 value=False,
                 help="Check if the student primarily attends classes online."
             )
-
+    
             submitted = st.form_submit_button("Predict")
-
+    
+    # ----------------------------- RIGHT COLUMN placeholder (before submit) ----------------------------- #
     if not submitted:
+        with right:
+            st.subheader("\U0001F52E Prediction")  # 🔮
+            st.info("Fill in the student's details on the left and click **Predict** to see results here.")
         return
-
+    
     # ----------------------------- Run the model ----------------------------- #
     gender_enc = encoders["gender_encoder"].transform([gender])[0]
     parental_enc = encoders["parental_support_map"][parental_support]
     online_enc = int(online_classes)
-
+    
     row = pd.DataFrame([{
         "AttendanceRate": attendance_rate,
         "StudyHoursPerWeek": study_hours,
@@ -800,8 +814,8 @@ def page_predict(model, scaler, encoders):
         "Performance Level"
     ).reindex(LEVEL_ORDER)
     confidence = prob_df["Probability"].max()
-
-# ----------------------------- RIGHT COLUMN (results) ----------------------------- #
+    
+    # ----------------------------- RIGHT COLUMN (results) ----------------------------- #
     with right:
         st.subheader("\U0001F52E Prediction")  # 🔮
 
@@ -856,8 +870,7 @@ def page_predict(model, scaler, encoders):
             )
             for tip in tips:
                 st.write(f"- {tip}")
-
-
+                
 # --------------------------------------------------------------------------- #
 # Main
 # --------------------------------------------------------------------------- #
