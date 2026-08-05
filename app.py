@@ -207,19 +207,31 @@ def generate_recommendations(attendance_rate, study_hours, previous_grade,
 # --------------------------------------------------------------------------- #
 def page_overview(df, comparison_df):
 
-    # --- Tighten default Streamlit spacing so the page fits without scrolling ---
+    # --- Responsive spacing that scales with viewport height ---
     st.markdown(
         """
         <style>
             .block-container {
-                padding-top: 1.2rem;
-                padding-bottom: 1rem;
+                padding-top: 1rem;
+                padding-bottom: 0.5rem;
             }
             div[data-testid="stMetric"] {
                 padding: 0.3rem 0.5rem;
             }
+            /* Pull the divider closer to the metrics above it */
+            div[data-testid="stMetric"] + div,
+            div[data-testid="stHorizontalBlock"] {
+                margin-bottom: 0 !important;
+            }
             hr {
-                margin: 0.6rem 0;
+                margin: 0.2rem 0 0.6rem 0 !important;
+            }
+            /* Scale chart images with viewport height instead of a fixed px size */
+            div[data-testid="stImage"] img {
+                max-height: 42vh;
+                width: auto;
+                margin: 0 auto;
+                display: block;
             }
         </style>
         """,
@@ -238,6 +250,7 @@ def page_overview(df, comparison_df):
     c2.metric("Average Final Grade", f"{avg_grade:.1f}", help="Mean score across all students")
     c3.metric("Average Attendance Rate", f"{avg_attendance:.1f}%", help="Mean attendance percentage")
     c4.metric("High Performers", f"{high_pct:.1f}%", help="Percentage of students in 'High' performance level")
+
     st.divider()
 
     view = st.selectbox(
@@ -247,7 +260,7 @@ def page_overview(df, comparison_df):
 
     if view == "Performance Level Distribution":
         st.subheader("Performance Level Distribution")
-        fig, ax = plt.subplots(figsize=(6, 3))
+        fig, ax = plt.subplots(figsize=(6, 3.2))
         sns.countplot(
             data=df, x="PerformanceLevel", order=LEVEL_ORDER,
             palette=[LEVEL_COLORS[l] for l in LEVEL_ORDER], ax=ax
@@ -255,7 +268,7 @@ def page_overview(df, comparison_df):
         ax.set_xlabel("Performance Level")
         ax.set_ylabel("Number of Students")
         fig.tight_layout()
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, use_container_width=False)
         plt.close(fig)
 
     else:
@@ -266,13 +279,13 @@ def page_overview(df, comparison_df):
             st.dataframe(comparison_df.style.format("{:.2f}"), use_container_width=True, height=280)
 
         with col2:
-            fig, ax = plt.subplots(figsize=(6, 3))
+            fig, ax = plt.subplots(figsize=(6, 3.2))
             (comparison_df / 100).plot(kind="bar", ax=ax, colormap="viridis")
             ax.set_ylabel("Score")
             ax.set_ylim(0, 1.0)
             ax.set_xticklabels(ax.get_xticklabels(), rotation=30, ha="right")
             fig.tight_layout()
-            st.pyplot(fig, use_container_width=True)
+            st.pyplot(fig, use_container_width=False)
             plt.close(fig)
 
     st.info(
