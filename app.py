@@ -540,11 +540,11 @@ def page_factor_analysis(df):
         st.markdown(
             f"""
             <h3 style="
-                margin-top: 1.5rem;
+                margin-top: 1rem;
                 margin-bottom: 0.5rem;
                 line-height: 1.2;
-                font-size: 1.4rem;
-                font-weight: calc(1.3rem + 0.6vw);
+                font-size: calc(1.3rem + 0.6vw);
+                font-weight: 600;
                 font-family: inherit;
                 color: inherit;
             ">
