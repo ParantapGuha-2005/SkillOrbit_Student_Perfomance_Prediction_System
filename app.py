@@ -537,7 +537,7 @@ def page_factor_analysis(df):
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader(f"{factor} by \nPerformance Level")
+        st.subheader(f"{factor} by         Performance Level")
         fig, ax = plt.subplots(figsize=(5.2, 3.4))
         is_categorical = (
             df[factor].dtype == object
