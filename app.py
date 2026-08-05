@@ -329,23 +329,33 @@ def page_student_explorer(df):
                 padding-top: 0.2rem;
                 margin-top: 0;
             }
-            /* Prevent widget labels (selectbox/text_input captions) from clipping at the top */
             div[data-testid="stWidgetLabel"] p {
                 line-height: 1.4 !important;
                 overflow: visible !important;
                 padding-top: 0.15rem;
             }
-            div[data-testid="stMetric"] {
-                padding: 0.3rem 0.5rem;
-            }
-            hr {
-                margin: 0.2rem 0 0.6rem 0 !important;
-            }
             div[data-testid="stImage"] img {
-                max-height: 38vh;
+                max-height: 46vh;
                 width: auto;
                 margin: 0 auto;
                 display: block;
+            }
+            hr {
+                margin: 1.2rem 0 1.5rem 0 !important;
+            }
+            /* Give the bottom metrics section more visual weight so it doesn't feel like empty space */
+            div[data-testid="stMetric"] {
+                padding: 1rem 1.2rem;
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            div[data-testid="stMetric"] label p {
+                font-size: 1rem !important;
+            }
+            div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
+                font-size: 2.1rem !important;
+                padding-top: 0.3rem;
             }
         </style>
         """,
@@ -388,7 +398,6 @@ def page_student_explorer(df):
 
     # ----------------------------- RIGHT COLUMN ----------------------------- #
     with right:
-        # Small spacer so the section label isn't flush against the top edge
         st.write("")
 
         section = st.selectbox(
@@ -404,10 +413,10 @@ def page_student_explorer(df):
                 "Student": student[compare_cols].astype(float),
                 "Class Average": class_avg,
             })
-            fig, ax = plt.subplots(figsize=(5.5, 3))
+            fig, ax = plt.subplots(figsize=(6.5, 3.6))
             compare_df.plot(kind="bar", ax=ax, color=["#4c72b0", "#c44e52"])
             ax.set_ylabel("Value")
-            ax.set_title(f"{student['Name']} vs. Class Average", fontsize=10)
+            ax.set_title(f"{student['Name']} vs. Class Average", fontsize=11)
             ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right")
             fig.tight_layout()
             st.pyplot(fig, use_container_width=False)
