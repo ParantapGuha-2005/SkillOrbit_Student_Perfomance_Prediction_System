@@ -600,6 +600,9 @@ def page_trends(df):
                 margin: 0 auto;
                 display: block;
             }
+            hr {
+                margin: 0.3rem 0 1rem 0 !important;
+            }
         </style>
         """,
         unsafe_allow_html=True,
