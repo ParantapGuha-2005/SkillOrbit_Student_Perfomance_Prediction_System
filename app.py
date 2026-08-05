@@ -218,7 +218,6 @@ def page_overview(df, comparison_df):
             div[data-testid="stMetric"] {
                 padding: 0.3rem 0.5rem;
             }
-            /* Pull the divider closer to the metrics above it */
             div[data-testid="stMetric"] + div,
             div[data-testid="stHorizontalBlock"] {
                 margin-bottom: 0 !important;
@@ -228,10 +227,14 @@ def page_overview(df, comparison_df):
             }
             /* Scale chart images with viewport height instead of a fixed px size */
             div[data-testid="stImage"] img {
-                max-height: 42vh;
+                max-height: 38vh;
                 width: auto;
                 margin: 0 auto;
                 display: block;
+            }
+            /* Tighten space below headers/captions/subheaders */
+            div[data-testid="stVerticalBlock"] > div:has(h3) {
+                margin-bottom: 0.2rem;
             }
         </style>
         """,
@@ -258,9 +261,13 @@ def page_overview(df, comparison_df):
         ["Performance Level Distribution", "Model Comparison (Test Set)"],
     )
 
+    # Row height for a dataframe sized exactly to its content (no blank trailing rows)
+    ROW_PX = 35
+    HEADER_PX = 38
+
     if view == "Performance Level Distribution":
         st.subheader("Performance Level Distribution")
-        fig, ax = plt.subplots(figsize=(6, 3.2))
+        fig, ax = plt.subplots(figsize=(6, 3))
         sns.countplot(
             data=df, x="PerformanceLevel", order=LEVEL_ORDER,
             palette=[LEVEL_COLORS[l] for l in LEVEL_ORDER], ax=ax
@@ -273,17 +280,27 @@ def page_overview(df, comparison_df):
 
     else:
         st.subheader("Model Comparison (Test Set)")
+        st.caption(
+            "Accuracy / Weighted F1 / Macro F1 across all trained models — "
+            "see the notebook (Module 3-4) for the full evaluation."
+        )
+
         col1, col2 = st.columns([1, 1.2])
 
         with col1:
-            st.dataframe(comparison_df.style.format("{:.2f}"), use_container_width=True, height=280)
+            table_height = HEADER_PX + ROW_PX * len(comparison_df)
+            st.dataframe(
+                comparison_df.style.format("{:.2f}"),
+                use_container_width=True,
+                height=table_height,
+            )
 
         with col2:
-            fig, ax = plt.subplots(figsize=(6, 3.2))
+            fig, ax = plt.subplots(figsize=(6, 3))
             (comparison_df / 100).plot(kind="bar", ax=ax, colormap="viridis")
             ax.set_ylabel("Score")
             ax.set_ylim(0, 1.0)
-            ax.set_xticklabels(ax.get_xticklabels(), rotation=30, ha="right")
+            ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right")
             fig.tight_layout()
             st.pyplot(fig, use_container_width=False)
             plt.close(fig)
