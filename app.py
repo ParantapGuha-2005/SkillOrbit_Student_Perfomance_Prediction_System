@@ -690,7 +690,7 @@ def page_trends(df):
 # Page: Predict a New Student (live model + recommendations)
 # --------------------------------------------------------------------------- #
 def page_predict(model, scaler, encoders):
-
+ 
     st.markdown(
         """
         <style>
@@ -733,7 +733,7 @@ def page_predict(model, scaler, encoders):
         """,
         unsafe_allow_html=True,
     )
-
+ 
     # ----------------------------- TOP ----------------------------- #
     st.header("\U0001F9D2 Predict a New Student")  # 🧒
     st.caption(
@@ -741,9 +741,9 @@ def page_predict(model, scaler, encoders):
         "prediction and tailored recommendations."
     )
     st.divider()
-
+ 
     left, right = st.columns([1, 1.3])
-
+ 
     # ----------------------------- LEFT COLUMN (input panel) ----------------------------- #
     with left:
         with st.form("predict_form"):
@@ -806,7 +806,7 @@ def page_predict(model, scaler, encoders):
         "ParentalSupport_enc": parental_enc,
         "OnlineClasses_enc": online_enc,
     }])[FEATURE_COLUMNS]
-
+ 
     # Random Forest was trained on unscaled features (see notebook, Module 3.6-3.7)
     predicted_level = model.predict(row)[0]
     probabilities = model.predict_proba(row)[0]
@@ -818,7 +818,7 @@ def page_predict(model, scaler, encoders):
     # ----------------------------- RIGHT COLUMN (results) ----------------------------- #
     with right:
         st.subheader("\U0001F52E Prediction")  # 🔮
-
+ 
         box_style = """
             height:120px;
             padding:1rem 1.2rem;
@@ -829,7 +829,7 @@ def page_predict(model, scaler, encoders):
             flex-direction:column;
             justify-content:center;
         """
-
+ 
         b1, b2 = st.columns(2)
         with b1:
             st.markdown(
@@ -855,15 +855,15 @@ def page_predict(model, scaler, encoders):
                 """,
                 unsafe_allow_html=True,
             )
-
+ 
         st.write("")
-
+ 
         view = st.selectbox("Select a view", ["Probability Chart", "Recommendations"])
-
+ 
         if view == "Probability Chart":
             st.bar_chart(prob_df)
         else:
-            st.markdown("**\U0001F4A1 Recommendations**")  # 💡
+            st.markdown("**\U0001F4A1 Recommendations**")  #💡
             tips = generate_recommendations(
                 attendance_rate, study_hours, previous_grade,
                 extracurricular, parental_support, predicted_level,
@@ -876,7 +876,7 @@ def page_predict(model, scaler, encoders):
 # --------------------------------------------------------------------------- #
 def main():
     st.sidebar.title("🎓 Student Performance Dashboard")
-
+ 
     if not artifacts_available():
         st.error(
             "Required artifacts were not found in the `artifacts/` folder. "
@@ -884,23 +884,18 @@ def main():
             "and make sure the `artifacts/` folder sits next to this app.py."
         )
         return
-
+ 
     # Add loading spinner for better UX
     with st.spinner("Loading dashboard data..."):
         model, scaler, encoders = load_artifacts()
         df = load_student_data()
         comparison_df = load_model_comparison()
-
-
-    model, scaler, encoders = load_artifacts()
-    df = load_student_data()
-    comparison_df = load_model_comparison()
-
+ 
     page = st.sidebar.radio(
         "Navigate",
         ["Overview", "Student Explorer", "Factor Analysis", "Performance Trends", "Predict a New Student"],
     )
-
+ 
     if page == "Overview":
         page_overview(df, comparison_df)
     elif page == "Student Explorer":
@@ -911,7 +906,7 @@ def main():
         page_trends(df)
     elif page == "Predict a New Student":
         page_predict(model, scaler, encoders)
-
-
+ 
+ 
 if __name__ == "__main__":
     main()
