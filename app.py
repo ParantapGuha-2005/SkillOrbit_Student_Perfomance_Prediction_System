@@ -352,9 +352,16 @@ def page_student_explorer(df):
             div[data-testid="stMetric"] label p {
                 font-size: 1rem !important;
             }
-            div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
-                font-size: 2.1rem !important;
-                padding-top: 0.3rem;
+            div[data-testid="stMetric"] {
+                padding: 1rem 1.2rem;
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                height: 120px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                box-sizing: border-box;
             }
         </style>
         """,
