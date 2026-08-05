@@ -606,7 +606,7 @@ def page_trends(df):
     )
 
     st.header("\U0001F4C9 Performance Trends")  # 📉
-
+    st.divider()
     # Persist the bucket choice across reruns so the plot (drawn first) can use it
     # even though the radio widget itself is rendered further down the page.
     if "trend_bucket_col" not in st.session_state:
