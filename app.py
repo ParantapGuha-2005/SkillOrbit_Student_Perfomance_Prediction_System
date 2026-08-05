@@ -541,7 +541,7 @@ def page_factor_analysis(df):
             f"""
             <h3 style="
                 margin-top: 0rem;
-                margin-bottom: 0rem;
+                margin-bottom: -0.1rem;
                 line-height: 1.2;
                 font-size: calc(1.3rem + 0.6vw);
                 font-weight: 600;
