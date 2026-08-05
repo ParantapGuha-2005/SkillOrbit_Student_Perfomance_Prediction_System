@@ -314,10 +314,41 @@ def page_overview(df, comparison_df):
 # Page: Student Explorer (comparison)
 # --------------------------------------------------------------------------- #
 def page_student_explorer(df):
-    st.header("ð Student Explorer")
+
+    st.markdown(
+        """
+        <style>
+            .block-container {
+                padding-top: 2rem;
+                padding-bottom: 0.5rem;
+                overflow: visible;
+            }
+            h1, div[data-testid="stMarkdownContainer"] h1 {
+                line-height: 1.3 !important;
+                overflow: visible !important;
+                padding-top: 0.2rem;
+                margin-top: 0;
+            }
+            div[data-testid="stMetric"] {
+                padding: 0.3rem 0.5rem;
+            }
+            hr {
+                margin: 0.2rem 0 0.6rem 0 !important;
+            }
+            div[data-testid="stImage"] img {
+                max-height: 42vh;
+                width: auto;
+                margin: 0 auto;
+                display: block;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.header("\U0001F4DA Student Explorer")  # 📚
     st.caption("Look up an individual student and compare them against their predicted performance and class averages.")
 
-    # Add performance level filter
     perf_filter = st.selectbox("Filter by Performance Level", ["All"] + LEVEL_ORDER)
     if perf_filter != "All":
         df = df[df["PerformanceLevel"] == perf_filter]
@@ -335,42 +366,54 @@ def page_student_explorer(df):
         st.warning("No matching students found.")
         return
 
-    options = filtered.apply(lambda r: f"{r['StudentID']} â {r['Name']}", axis=1).tolist()
+    # Use a plain hyphen instead of a special dash character to avoid encoding issues
+    options = filtered.apply(lambda r: f"{r['StudentID']} - {r['Name']}", axis=1).tolist()
     choice = st.selectbox("Select a student", options)
     student = filtered.iloc[options.index(choice)]
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Final Grade", f"{student['FinalGrade']:.1f}")
     c2.metric("Actual Level", str(student["PerformanceLevel"]))
-    c3.metric("Predicted Level", str(student["PredictedLevel"]),
-              delta="Match" if student["PerformanceLevel"] == student["PredictedLevel"] else "Mismatch",
-              delta_color="off")
+    c3.metric(
+        "Predicted Level", str(student["PredictedLevel"]),
+        delta="Match" if student["PerformanceLevel"] == student["PredictedLevel"] else "Mismatch",
+        delta_color="off",
+    )
     c4.metric("Attendance", f"{student['AttendanceRate']:.1f}%")
 
     st.divider()
-    st.subheader("Student vs. Class Average")
+
+    section = st.selectbox(
+        "Select a section",
+        ["Student vs. Class Average", "Recommendations"],
+    )
 
     compare_cols = ["AttendanceRate", "StudyHoursPerWeek", "PreviousGrade", "FinalGrade"]
-    class_avg = df[compare_cols].mean()
-    compare_df = pd.DataFrame({
-        "Student": student[compare_cols].astype(float),
-        "Class Average": class_avg,
-    })
 
-    fig, ax = plt.subplots(figsize=(7, 4))
-    compare_df.plot(kind="bar", ax=ax, color=["#4c72b0", "#c44e52"], rot=15)
-    ax.set_ylabel("Value")
-    ax.set_title(f"{student['Name']} vs. Class Average")
-    st.pyplot(fig)
+    if section == "Student vs. Class Average":
+        st.subheader("Student vs. Class Average")
+        class_avg = df[compare_cols].mean()
+        compare_df = pd.DataFrame({
+            "Student": student[compare_cols].astype(float),
+            "Class Average": class_avg,
+        })
+        fig, ax = plt.subplots(figsize=(6, 3.2))
+        compare_df.plot(kind="bar", ax=ax, color=["#4c72b0", "#c44e52"])
+        ax.set_ylabel("Value")
+        ax.set_title(f"{student['Name']} vs. Class Average")
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right")
+        fig.tight_layout()
+        st.pyplot(fig, use_container_width=False)
+        plt.close(fig)
 
-    st.subheader("Recommendations")
-    tips = generate_recommendations(
-        student["AttendanceRate"], student["StudyHoursPerWeek"], student["PreviousGrade"],
-        student["ExtracurricularActivities"], student["ParentalSupport"], student["PredictedLevel"],
-    )
-    for tip in tips:
-        st.write(f"- {tip}")
-
+    else:
+        st.subheader("\U0001F4A1 Recommendations")  # 💡
+        tips = generate_recommendations(
+            student["AttendanceRate"], student["StudyHoursPerWeek"], student["PreviousGrade"],
+            student["ExtracurricularActivities"], student["ParentalSupport"], student["PredictedLevel"],
+        )
+        for tip in tips:
+            st.write(f"- {tip}")
 
 # --------------------------------------------------------------------------- #
 # Page: Factor Analysis
