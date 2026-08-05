@@ -147,8 +147,13 @@ def page_overview(df, comparison_df):
 # Page: Student Explorer (comparison)
 # --------------------------------------------------------------------------- #
 def page_student_explorer(df):
-    st.header("🔍 Student Explorer")
+    st.header("ð Student Explorer")
     st.caption("Look up an individual student and compare them against their predicted performance and class averages.")
+
+    # Add performance level filter
+    perf_filter = st.selectbox("Filter by Performance Level", ["All"] + LEVEL_ORDER)
+    if perf_filter != "All":
+        df = df[df["PerformanceLevel"] == perf_filter]
 
     search = st.text_input("Search by Student ID or Name")
     filtered = df
@@ -163,7 +168,7 @@ def page_student_explorer(df):
         st.warning("No matching students found.")
         return
 
-    options = filtered.apply(lambda r: f"{r['StudentID']} — {r['Name']}", axis=1).tolist()
+    options = filtered.apply(lambda r: f"{r['StudentID']} â {r['Name']}", axis=1).tolist()
     choice = st.selectbox("Select a student", options)
     student = filtered.iloc[options.index(choice)]
 
