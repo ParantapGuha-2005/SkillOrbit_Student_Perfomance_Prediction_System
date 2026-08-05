@@ -212,8 +212,16 @@ def page_overview(df, comparison_df):
         """
         <style>
             .block-container {
-                padding-top: 1rem;
+                padding-top: 2rem;
                 padding-bottom: 0.5rem;
+                overflow: visible;
+            }
+            /* Prevent the header emoji/text from being clipped */
+            h1, div[data-testid="stHeader"], div[data-testid="stMarkdownContainer"] h1 {
+                line-height: 1.3 !important;
+                overflow: visible !important;
+                padding-top: 0.2rem;
+                margin-top: 0;
             }
             div[data-testid="stMetric"] {
                 padding: 0.3rem 0.5rem;
@@ -225,14 +233,12 @@ def page_overview(df, comparison_df):
             hr {
                 margin: 0.2rem 0 0.6rem 0 !important;
             }
-            /* Scale chart images with viewport height instead of a fixed px size */
             div[data-testid="stImage"] img {
                 max-height: 38vh;
                 width: auto;
                 margin: 0 auto;
                 display: block;
             }
-            /* Tighten space below headers/captions/subheaders */
             div[data-testid="stVerticalBlock"] > div:has(h3) {
                 margin-bottom: 0.2rem;
             }
