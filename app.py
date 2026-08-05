@@ -480,6 +480,7 @@ def page_student_explorer(df):
                 </div>
             </div>
             """,
+            html,
             unsafe_allow_html=True,
         )
 
