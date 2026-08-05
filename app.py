@@ -647,8 +647,23 @@ def page_trends(df):
         plt.close(fig)
 
     with col2:
-        st.subheader("Attendance & Study Hours Trend")
-
+        st.markdown(
+                f"""
+                <h3 style="
+                    margin-top: 0rem;
+                    margin-bottom: 0rem;
+                    line-height: 0;
+                    font-size: calc(1.3rem + 0.6vw);
+                    font-weight: 600;
+                    font-family: inherit;
+                    color: inherit;
+                ">
+                    Attendance &<br>
+                    Study Hours Trend
+                </h3>
+                """,
+                unsafe_allow_html=True,
+        )
         bucket_col = st.session_state.trend_bucket_col
         bucketed = pd.cut(df[bucket_col], bins=8)
         trend = df.groupby(bucketed, observed=True)["FinalGrade"].mean().reset_index()
