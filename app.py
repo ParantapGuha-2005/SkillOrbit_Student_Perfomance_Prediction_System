@@ -282,7 +282,6 @@ def page_overview(df, comparison_df):
         st.subheader("Model Comparison (Test Set)")
         st.caption(
             "Accuracy / Weighted F1 / Macro F1 across all trained models — "
-            "see the notebook (Module 3-4) for the full evaluation."
         )
 
         col1, col2 = st.columns([1, 1.2])
@@ -304,12 +303,6 @@ def page_overview(df, comparison_df):
             fig.tight_layout()
             st.pyplot(fig, use_container_width=False)
             plt.close(fig)
-
-    st.info(
-        "Note: this dataset records one overall `FinalGrade` per student rather than "
-        "per-subject scores, so the analysis below is organized by contributing factor "
-        "(attendance, study hours, previous grade, etc.) rather than by subject."
-    )
 
 # --------------------------------------------------------------------------- #
 # Page: Student Explorer (comparison)
