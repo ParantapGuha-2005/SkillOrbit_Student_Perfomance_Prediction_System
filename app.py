@@ -74,23 +74,130 @@ def artifacts_available():
 # --------------------------------------------------------------------------- #
 def generate_recommendations(attendance_rate, study_hours, previous_grade,
                               extracurricular, parental_support, predicted_level):
+    """Generate personalized recommendations using a weighted scoring system.
+
+    Each factor is scored 0-10, where higher scores indicate greater improvement
+    opportunity. Factors are weighted by their relative impact on student performance.
+    A composite score determines the recommendation tier (High/Medium/Low priority).
+    """
+
     tips = []
 
+    # -- Factor scoring (0 = no concern, 10 = maximum concern) -----------------
+    # Attendance: <75 is at-risk; linearly scale so 0% -> score 10, 75% -> score 0
     if attendance_rate < 75:
-        tips.append("Improve attendance — regular class attendance is strongly linked to better academic outcomes.")
-    if study_hours < 12:
-        tips.append("Increase weekly study hours, aiming for consistent daily study blocks rather than cramming.")
-    if previous_grade < 70:
-        tips.append("Focus on revisiting foundational topics from previous coursework where scores were weaker.")
-    if parental_support == "Low":
-        tips.append("Involve parents/guardians more actively in academic planning and progress check-ins.")
-    if predicted_level == "Low":
-        tips.append("Attend additional practice sessions or tutoring to reinforce weaker subject areas.")
-    if extracurricular == 0:
-        tips.append("Consider a well-balanced extracurricular activity — participation is linked to steadier engagement.")
+        attendance_score = min(10, (75 - attendance_rate) * 10 / 75)
+    else:
+        attendance_score = 0
 
-    if not tips:
-        tips.append("Keep up the current habits — attendance, study routine, and support levels all look solid.")
+    # Study hours: <12 is at-risk; scale 0 h -> score 10, 12 h -> score 0
+    if study_hours < 12:
+        study_score = min(10, (12 - study_hours) * 10 / 12)
+    else:
+        study_score = 0
+
+    # Previous grade: <70 is at-risk; scale 0 -> score 10, 70 -> score 0
+    if previous_grade < 70:
+        grade_score = min(10, (70 - previous_grade) * 10 / 70)
+    else:
+        grade_score = 0
+
+    # Parental support: categorical mapping
+    parent_score = {"Low": 8, "Moderate": 4, "High": 0}.get(parental_support, 0)
+
+    # Predicted level: categorical mapping
+    predicted_score = {"Low": 8, "Average": 4, "High": 0}.get(predicted_level, 0)
+
+    # Extracurricular activities: 0 is at-risk
+    extracurricular_score = 6 if extracurricular == 0 else 0
+
+    # -- Weighted composite score ------------------------------------------------
+    # Weights reflect relative impact based on educational research
+    weights = {
+        "attendance": 0.4,
+        "study_hours": 0.3,
+        "grade": 0.2,
+        "parental_support": 0.05,
+        "predicted_level": 0.03,
+        "extracurricular": 0.02,
+    }
+    total_score = (
+        attendance_score * weights["attendance"]
+        + study_score * weights["study_hours"]
+        + grade_score * weights["grade"]
+        + parent_score * weights["parental_support"]
+        + predicted_score * weights["predicted_level"]
+        + extracurricular_score * weights["extracurricular"]
+    )
+
+    # -- Tier assignment based on composite score --------------------------------
+    # Tier 1: High-priority interventions needed (score >= 6)
+    # Tier 2: Medium-priority recommendations (score >= 3)
+    # Tier 3: Maintenance / positive reinforcement (score < 3)
+    if total_score >= 6:
+        priority = "High"
+
+        if attendance_rate < 75:
+            tips.append("Improve attendance — regular class attendance is strongly linked to better academic outcomes.")
+        if study_hours < 12:
+            tips.append("Increase weekly study hours, aiming for consistent daily study blocks rather than cramming.")
+        if previous_grade < 70:
+            tips.append("Focus on revisiting foundational topics from previous coursework where scores were weaker.")
+        if parental_support == "Low":
+            tips.append("Involve parents/guardians more actively in academic planning and progress check-ins.")
+        if predicted_level == "Low":
+            tips.append("Attend additional practice sessions or tutoring to reinforce weaker subject areas.")
+        if extracurricular == 0:
+            tips.append("Consider a well-balanced extracurricular activity — participation is linked to steadier engagement.")
+
+        if not tips:
+            tips.append("Keep up the current habits — attendance, study routine, and support levels all look solid.")
+
+        # Tier-1 priority opener highlighting the most impactful combined factors
+        if attendance_rate < 75 and study_hours < 12:
+            tier1_tips = ["Priority: Focus on attendance and study habits together — they are your biggest leverage points for improvement."]
+        elif attendance_rate < 75:
+            tier1_tips = ["Priority: Attendance is your biggest leverage point right now."]
+        elif study_hours < 12:
+            tier1_tips = ["Priority: Increasing study time consistently will significantly improve your performance."]
+        else:
+            tier1_tips = ["Priority: Address the foundational factors above for the biggest impact."]
+
+        tips = tier1_tips + tips
+
+    elif total_score >= 3:
+        priority = "Medium"
+
+        if attendance_rate < 75:
+            tips.insert(0, "Maintaining or improving your attendance rate will strengthen your academic foundation.")
+        if study_hours < 12:
+            tips.insert(0, "Aim for at least 12 study hours per week to solidify your knowledge.")
+        if parental_support == "Low":
+            tips.insert(0, "Talk with parents/guardians about creating a supportive study environment.")
+        if predicted_level == "Low":
+            tips.insert(0, "Additional practice sessions could help prevent falling behind.")
+        if extracurricular == 0:
+            tips.insert(0, "Joining an extracurricular activity could boost your engagement.")
+
+        if not tips:
+            tips.append("Your current habits look balanced; continue with your effective routines.")
+
+    else:
+        priority = "Low"
+        # Tier 3 recommendations (maintenance or minor improvements)
+        tips = tips + [
+            "Your attendance and study habits are strong — keep it up!",
+            "Maintain your current level of parental support and extracurricular balance.",
+            "Your performance level appears stable; a few additional study hours could help maintain this.",
+        ]
+
+    # -- Add level-specific encouragement ----------------------------------------
+    if predicted_level == "High":
+        tips.append("Maintain your excellent performance with continued focus on all areas.")
+    elif predicted_level == "Average":
+        tips.append("You're doing okay — small improvements in attendance or study habits could push you to the next level.")
+    elif predicted_level == "Low":
+        tips.append("Your predicted level shows potential for improvement — targeted efforts will make a difference.")
 
     return tips
 
