@@ -417,6 +417,13 @@ def main():
         )
         return
 
+    # Add loading spinner for better UX
+    with st.spinner("Loading dashboard data..."):
+        model, scaler, encoders = load_artifacts()
+        df = load_student_data()
+        comparison_df = load_model_comparison()
+
+
     model, scaler, encoders = load_artifacts()
     df = load_student_data()
     comparison_df = load_model_comparison()
