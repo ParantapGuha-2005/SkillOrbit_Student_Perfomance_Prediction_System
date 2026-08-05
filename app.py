@@ -557,30 +557,66 @@ def page_factor_analysis(df):
 # Page: Performance Trends
 # --------------------------------------------------------------------------- #
 def page_trends(df):
-    st.header("📉 Performance Trends")
+
+    st.markdown(
+        """
+        <style>
+            .block-container {
+                padding-top: 2rem;
+                padding-bottom: 0.5rem;
+                overflow: visible;
+            }
+            h1, h3, div[data-testid="stMarkdownContainer"] h1, div[data-testid="stMarkdownContainer"] h3 {
+                line-height: 1.3 !important;
+                overflow: visible !important;
+                padding-top: 0.2rem;
+                margin-top: 0;
+            }
+            div[data-testid="stWidgetLabel"] p {
+                line-height: 1.4 !important;
+                overflow: visible !important;
+                padding-top: 0.15rem;
+            }
+            div[data-testid="stImage"] img {
+                max-height: 44vh;
+                width: auto;
+                margin: 0 auto;
+                display: block;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.header("\U0001F4C9 Performance Trends")  # 📉
 
     st.subheader("Previous Grade vs. Final Grade")
-    fig, ax = plt.subplots(figsize=(7, 5))
+    fig, ax = plt.subplots(figsize=(6, 3.6))
     sns.scatterplot(
         data=df, x="PreviousGrade", y="FinalGrade", hue="PerformanceLevel",
         hue_order=LEVEL_ORDER, palette=LEVEL_COLORS, alpha=0.6, ax=ax,
     )
     ax.set_xlabel("Previous Grade")
     ax.set_ylabel("Final Grade")
-    st.pyplot(fig)
+    fig.tight_layout()
+    st.pyplot(fig, use_container_width=False)
+    plt.close(fig)
 
     st.subheader("Attendance & Study Hours Trend")
     bucket_col = st.radio("Bucket by", ["AttendanceRate", "StudyHoursPerWeek"], horizontal=True)
+
     bucketed = pd.cut(df[bucket_col], bins=8)
     trend = df.groupby(bucketed, observed=True)["FinalGrade"].mean().reset_index()
     trend[bucket_col] = trend[bucket_col].astype(str)
 
-    fig, ax = plt.subplots(figsize=(8, 4))
+    fig, ax = plt.subplots(figsize=(6.5, 3.2))
     sns.lineplot(data=trend, x=bucket_col, y="FinalGrade", marker="o", ax=ax)
     ax.set_xlabel(bucket_col)
     ax.set_ylabel("Average Final Grade")
-    ax.tick_params(axis="x", rotation=45)
-    st.pyplot(fig)
+    ax.tick_params(axis="x", rotation=40)
+    fig.tight_layout()
+    st.pyplot(fig, use_container_width=False)
+    plt.close(fig)
 
 
 # --------------------------------------------------------------------------- #
