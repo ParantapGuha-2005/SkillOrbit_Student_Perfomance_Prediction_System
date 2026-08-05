@@ -690,7 +690,7 @@ def page_trends(df):
 # Page: Predict a New Student (live model + recommendations)
 # --------------------------------------------------------------------------- #
 def page_predict(model, scaler, encoders):
- 
+
     st.markdown(
         """
         <style>
@@ -719,7 +719,6 @@ def page_predict(model, scaler, encoders):
             hr {
                 margin: 0.3rem 0 1rem 0 !important;
             }
-            /* Tighten spacing inside the form so all inputs fit compactly */
             div[data-testid="stForm"] div[data-testid="stVerticalBlock"] > div {
                 margin-bottom: -0.6rem;
             }
@@ -733,7 +732,7 @@ def page_predict(model, scaler, encoders):
         """,
         unsafe_allow_html=True,
     )
- 
+
     # ----------------------------- TOP ----------------------------- #
     st.header("\U0001F9D2 Predict a New Student")  # 🧒
     st.caption(
@@ -741,9 +740,9 @@ def page_predict(model, scaler, encoders):
         "prediction and tailored recommendations."
     )
     st.divider()
- 
+
     left, right = st.columns([1, 1.3])
- 
+
     # ----------------------------- LEFT COLUMN (input panel) ----------------------------- #
     with left:
         with st.form("predict_form"):
@@ -782,46 +781,59 @@ def page_predict(model, scaler, encoders):
                 value=False,
                 help="Check if the student primarily attends classes online."
             )
-    
+
             submitted = st.form_submit_button("Predict")
-    
-    # ----------------------------- RIGHT COLUMN placeholder (before submit) ----------------------------- #
-    if not submitted:
-        with right:
-            st.subheader("\U0001F52E Prediction")  # 🔮
-            st.info("Fill in the student's details on the left and click **Predict** to see results here.")
-        return
-    
-    # ----------------------------- Run the model ----------------------------- #
-    gender_enc = encoders["gender_encoder"].transform([gender])[0]
-    parental_enc = encoders["parental_support_map"][parental_support]
-    online_enc = int(online_classes)
-    
-    row = pd.DataFrame([{
-        "AttendanceRate": attendance_rate,
-        "StudyHoursPerWeek": study_hours,
-        "PreviousGrade": previous_grade,
-        "ExtracurricularActivities": extracurricular,
-        "Gender_enc": gender_enc,
-        "ParentalSupport_enc": parental_enc,
-        "OnlineClasses_enc": online_enc,
-    }])[FEATURE_COLUMNS]
- 
-    # Random Forest was trained on unscaled features (see notebook, Module 3.6-3.7)
-    predicted_level = model.predict(row)[0]
-    probabilities = model.predict_proba(row)[0]
-    prob_df = pd.DataFrame({"Performance Level": model.classes_, "Probability": probabilities}).set_index(
-        "Performance Level"
-    ).reindex(LEVEL_ORDER)
-    confidence = prob_df["Probability"].max()
-    
-    # ----------------------------- RIGHT COLUMN (results) ----------------------------- #
+
+    # ----------------------------- Run the model (only recompute on actual submit) ----------------------------- #
+    if submitted:
+        gender_enc = encoders["gender_encoder"].transform([gender])[0]
+        parental_enc = encoders["parental_support_map"][parental_support]
+        online_enc = int(online_classes)
+
+        row = pd.DataFrame([{
+            "AttendanceRate": attendance_rate,
+            "StudyHoursPerWeek": study_hours,
+            "PreviousGrade": previous_grade,
+            "ExtracurricularActivities": extracurricular,
+            "Gender_enc": gender_enc,
+            "ParentalSupport_enc": parental_enc,
+            "OnlineClasses_enc": online_enc,
+        }])[FEATURE_COLUMNS]
+
+        # Random Forest was trained on unscaled features (see notebook, Module 3.6-3.7)
+        predicted_level = model.predict(row)[0]
+        probabilities = model.predict_proba(row)[0]
+        prob_df = pd.DataFrame({"Performance Level": model.classes_, "Probability": probabilities}).set_index(
+            "Performance Level"
+        ).reindex(LEVEL_ORDER)
+        confidence = prob_df["Probability"].max()
+
+        # Persist everything needed to redraw the right column across future reruns
+        # (e.g. when the "Select a view" dropdown changes and the form isn't resubmitted).
+        st.session_state.prediction_result = {
+            "predicted_level": predicted_level,
+            "prob_df": prob_df,
+            "confidence": confidence,
+            "attendance_rate": attendance_rate,
+            "study_hours": study_hours,
+            "previous_grade": previous_grade,
+            "extracurricular": extracurricular,
+            "parental_support": parental_support,
+        }
+
+    # ----------------------------- RIGHT COLUMN ----------------------------- #
     with right:
         st.subheader("\U0001F52E Prediction")  # 🔮
- 
+
+        result = st.session_state.get("prediction_result")
+
+        if result is None:
+            st.info("Fill in the student's details on the left and click **Predict** to see results here.")
+            return
+
         box_style = """
-            height:120px;
-            padding:1rem 1.2rem;
+            height:85px;
+            padding:0.6rem 1rem;
             background:rgba(255,255,255,0.03);
             border-radius:10px;
             border:1px solid rgba(255,255,255,0.08);
@@ -829,16 +841,16 @@ def page_predict(model, scaler, encoders):
             flex-direction:column;
             justify-content:center;
         """
- 
+
         b1, b2 = st.columns(2)
         with b1:
             st.markdown(
                 f"""
                 <div style="{box_style}">
-                    <p style="margin:0;font-size:1rem;color:rgba(255,255,255,0.6);">
+                    <p style="margin:0;font-size:0.85rem;color:rgba(255,255,255,0.6);">
                         Predicted Performance Level
                     </p>
-                    <span style="font-size:2.1rem;">{predicted_level}</span>
+                    <span style="font-size:1.5rem;">{result['predicted_level']}</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -847,26 +859,26 @@ def page_predict(model, scaler, encoders):
             st.markdown(
                 f"""
                 <div style="{box_style}">
-                    <p style="margin:0;font-size:1rem;color:rgba(255,255,255,0.6);">
+                    <p style="margin:0;font-size:0.85rem;color:rgba(255,255,255,0.6);">
                         Model Confidence
                     </p>
-                    <span style="font-size:2.1rem;">{confidence:.1%}</span>
+                    <span style="font-size:1.5rem;">{result['confidence']:.1%}</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
- 
+
         st.write("")
- 
+
         view = st.selectbox("Select a view", ["Probability Chart", "Recommendations"])
- 
+
         if view == "Probability Chart":
-            st.bar_chart(prob_df)
+            st.bar_chart(result["prob_df"])
         else:
             st.markdown("**\U0001F4A1 Recommendations**")  #💡
             tips = generate_recommendations(
-                attendance_rate, study_hours, previous_grade,
-                extracurricular, parental_support, predicted_level,
+                result["attendance_rate"], result["study_hours"], result["previous_grade"],
+                result["extracurricular"], result["parental_support"], result["predicted_level"],
             )
             for tip in tips:
                 st.write(f"- {tip}")
