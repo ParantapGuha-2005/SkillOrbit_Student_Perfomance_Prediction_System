@@ -336,7 +336,7 @@ def page_student_explorer(df):
                 margin: 0.2rem 0 0.6rem 0 !important;
             }
             div[data-testid="stImage"] img {
-                max-height: 42vh;
+                max-height: 38vh;
                 width: auto;
                 margin: 0 auto;
                 display: block;
@@ -346,31 +346,76 @@ def page_student_explorer(df):
         unsafe_allow_html=True,
     )
 
-    st.header("\U0001F4DA Student Explorer")  # 📚
-    st.caption("Look up an individual student and compare them against their predicted performance and class averages.")
+    left, right = st.columns([1, 1.3])
 
-    perf_filter = st.selectbox("Filter by Performance Level", ["All"] + LEVEL_ORDER)
-    if perf_filter != "All":
-        df = df[df["PerformanceLevel"] == perf_filter]
-
-    search = st.text_input("Search by Student ID or Name")
-    filtered = df
-    if search:
-        mask = (
-            df["StudentID"].astype(str).str.contains(search, case=False, na=False)
-            | df["Name"].astype(str).str.contains(search, case=False, na=False)
+    # ----------------------------- LEFT COLUMN ----------------------------- #
+    with left:
+        st.header("\U0001F4DA Student Explorer")  # 📚
+        st.caption(
+            "Look up an individual student and compare them against their "
+            "predicted performance and class averages."
         )
-        filtered = df[mask]
 
-    if filtered.empty:
-        st.warning("No matching students found.")
+        perf_filter = st.selectbox("Filter by Performance Level", ["All"] + LEVEL_ORDER)
+        filtered_df = df
+        if perf_filter != "All":
+            filtered_df = filtered_df[filtered_df["PerformanceLevel"] == perf_filter]
+
+        search = st.text_input("Search by Student ID or Name")
+        if search:
+            mask = (
+                filtered_df["StudentID"].astype(str).str.contains(search, case=False, na=False)
+                | filtered_df["Name"].astype(str).str.contains(search, case=False, na=False)
+            )
+            filtered_df = filtered_df[mask]
+
+        if filtered_df.empty:
+            st.warning("No matching students found.")
+            student = None
+        else:
+            options = filtered_df.apply(lambda r: f"{r['StudentID']} - {r['Name']}", axis=1).tolist()
+            choice = st.selectbox("Select a student", options)
+            student = filtered_df.iloc[options.index(choice)]
+
+    # If no student matched, stop here (nothing to show on the right or bottom)
+    if student is None:
         return
 
-    # Use a plain hyphen instead of a special dash character to avoid encoding issues
-    options = filtered.apply(lambda r: f"{r['StudentID']} - {r['Name']}", axis=1).tolist()
-    choice = st.selectbox("Select a student", options)
-    student = filtered.iloc[options.index(choice)]
+    # ----------------------------- RIGHT COLUMN ----------------------------- #
+    with right:
+        section = st.selectbox(
+            "Select a section",
+            ["Student vs. Class Average", "Recommendations"],
+        )
 
+        compare_cols = ["AttendanceRate", "StudyHoursPerWeek", "PreviousGrade", "FinalGrade"]
+
+        if section == "Student vs. Class Average":
+            class_avg = df[compare_cols].mean()
+            compare_df = pd.DataFrame({
+                "Student": student[compare_cols].astype(float),
+                "Class Average": class_avg,
+            })
+            fig, ax = plt.subplots(figsize=(5.5, 3))
+            compare_df.plot(kind="bar", ax=ax, color=["#4c72b0", "#c44e52"])
+            ax.set_ylabel("Value")
+            ax.set_title(f"{student['Name']} vs. Class Average", fontsize=10)
+            ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right")
+            fig.tight_layout()
+            st.pyplot(fig, use_container_width=False)
+            plt.close(fig)
+
+        else:
+            st.markdown("**\U0001F4A1 Recommendations**")  # 💡
+            tips = generate_recommendations(
+                student["AttendanceRate"], student["StudyHoursPerWeek"], student["PreviousGrade"],
+                student["ExtracurricularActivities"], student["ParentalSupport"], student["PredictedLevel"],
+            )
+            for tip in tips:
+                st.write(f"- {tip}")
+
+    # ----------------------------- BOTTOM ROW ----------------------------- #
+    st.divider()
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Final Grade", f"{student['FinalGrade']:.1f}")
     c2.metric("Actual Level", str(student["PerformanceLevel"]))
@@ -380,40 +425,6 @@ def page_student_explorer(df):
         delta_color="off",
     )
     c4.metric("Attendance", f"{student['AttendanceRate']:.1f}%")
-
-    st.divider()
-
-    section = st.selectbox(
-        "Select a section",
-        ["Student vs. Class Average", "Recommendations"],
-    )
-
-    compare_cols = ["AttendanceRate", "StudyHoursPerWeek", "PreviousGrade", "FinalGrade"]
-
-    if section == "Student vs. Class Average":
-        st.subheader("Student vs. Class Average")
-        class_avg = df[compare_cols].mean()
-        compare_df = pd.DataFrame({
-            "Student": student[compare_cols].astype(float),
-            "Class Average": class_avg,
-        })
-        fig, ax = plt.subplots(figsize=(6, 3.2))
-        compare_df.plot(kind="bar", ax=ax, color=["#4c72b0", "#c44e52"])
-        ax.set_ylabel("Value")
-        ax.set_title(f"{student['Name']} vs. Class Average")
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right")
-        fig.tight_layout()
-        st.pyplot(fig, use_container_width=False)
-        plt.close(fig)
-
-    else:
-        st.subheader("\U0001F4A1 Recommendations")  # 💡
-        tips = generate_recommendations(
-            student["AttendanceRate"], student["StudyHoursPerWeek"], student["PreviousGrade"],
-            student["ExtracurricularActivities"], student["ParentalSupport"], student["PredictedLevel"],
-        )
-        for tip in tips:
-            st.write(f"- {tip}")
 
 # --------------------------------------------------------------------------- #
 # Page: Factor Analysis
