@@ -710,6 +710,12 @@ def page_predict(model, scaler, encoders):
                 overflow: visible !important;
                 padding-top: 0.15rem;
             }
+            div[data-testid="stImage"] img {
+                max-height: 42vh;
+                width: auto;
+                margin: 0 auto;
+                display: block;
+            }
             hr {
                 margin: 0.3rem 0 1rem 0 !important;
             }
@@ -718,15 +724,19 @@ def page_predict(model, scaler, encoders):
         unsafe_allow_html=True,
     )
 
+    # ----------------------------- TOP ----------------------------- #
     st.header("\U0001F9D2 Predict a New Student")  # 🧒
     st.caption(
         "Enter a student's details to get a live, out-of-sample performance "
         "prediction and tailored recommendations."
     )
+    st.divider()
 
-    with st.form("predict_form"):
-        c1, c2 = st.columns(2)
-        with c1:
+    left, right = st.columns([1, 1.3])
+
+    # ----------------------------- LEFT COLUMN (input panel) ----------------------------- #
+    with left:
+        with st.form("predict_form"):
             attendance_rate = st.slider(
                 "Attendance Rate (%)",
                 0.0, 100.0, 80.0,
@@ -747,7 +757,6 @@ def page_predict(model, scaler, encoders):
                 [0, 1, 2, 3, 4],
                 help="Balanced extracurricular participation can improve engagement and time management."
             )
-        with c2:
             gender = st.selectbox(
                 "Gender",
                 list(encoders["gender_encoder"].classes_),
@@ -764,11 +773,12 @@ def page_predict(model, scaler, encoders):
                 help="Check if the student primarily attends classes online."
             )
 
-        submitted = st.form_submit_button("Predict")
+            submitted = st.form_submit_button("Predict")
 
     if not submitted:
         return
 
+    # ----------------------------- Run the model ----------------------------- #
     gender_enc = encoders["gender_encoder"].transform([gender])[0]
     parental_enc = encoders["parental_support_map"][parental_support]
     online_enc = int(online_classes)
@@ -789,32 +799,63 @@ def page_predict(model, scaler, encoders):
     prob_df = pd.DataFrame({"Performance Level": model.classes_, "Probability": probabilities}).set_index(
         "Performance Level"
     ).reindex(LEVEL_ORDER)
+    confidence = prob_df["Probability"].max()
 
-    st.divider()
-    st.subheader("Prediction")
-    st.metric("Predicted Performance Level", predicted_level)
-    st.bar_chart(prob_df)
+# ----------------------------- RIGHT COLUMN (results) ----------------------------- #
+    with right:
+        st.subheader("\U0001F52E Prediction")  # 🔮
 
-    st.subheader("Why this prediction?")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.write(f"- **Attendance Rate**: {attendance_rate:.1f}%")
-        st.write(f"- **Study Hours/Week**: {study_hours:.1f}")
-        st.write(f"- **Previous Grade**: {previous_grade:.1f}")
-        st.write(f"- **Extracurricular Activities**: {extracurricular}")
-    with col2:
-        st.write(f"- **Gender**: {gender}")
-        st.write(f"- **Parental Support**: {parental_support}")
-        st.write(f"- **Online Classes**: {'Yes' if online_classes else 'No'}")
-        st.write(f"- **Model Confidence**: {prob_df['Probability'].max():.2%}")
+        box_style = """
+            height:120px;
+            padding:1rem 1.2rem;
+            background:rgba(255,255,255,0.03);
+            border-radius:10px;
+            border:1px solid rgba(255,255,255,0.08);
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+        """
 
-    st.subheader("Recommendations")
-    tips = generate_recommendations(
-        attendance_rate, study_hours, previous_grade,
-        extracurricular, parental_support, predicted_level,
-    )
-    for tip in tips:
-        st.write(f"- {tip}")
+        b1, b2 = st.columns(2)
+        with b1:
+            st.markdown(
+                f"""
+                <div style="{box_style}">
+                    <p style="margin:0;font-size:1rem;color:rgba(255,255,255,0.6);">
+                        Predicted Performance Level
+                    </p>
+                    <span style="font-size:2.1rem;">{predicted_level}</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        with b2:
+            st.markdown(
+                f"""
+                <div style="{box_style}">
+                    <p style="margin:0;font-size:1rem;color:rgba(255,255,255,0.6);">
+                        Model Confidence
+                    </p>
+                    <span style="font-size:2.1rem;">{confidence:.1%}</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        st.write("")
+
+        view = st.selectbox("Select a view", ["Probability Chart", "Recommendations"])
+
+        if view == "Probability Chart":
+            st.bar_chart(prob_df)
+        else:
+            st.markdown("**\U0001F4A1 Recommendations**")  # 💡
+            tips = generate_recommendations(
+                attendance_rate, study_hours, previous_grade,
+                extracurricular, parental_support, predicted_level,
+            )
+            for tip in tips:
+                st.write(f"- {tip}")
 
 
 # --------------------------------------------------------------------------- #
