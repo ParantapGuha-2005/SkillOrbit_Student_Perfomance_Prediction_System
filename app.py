@@ -275,25 +275,99 @@ def page_trends(df):
 # Page: Predict a New Student (live model + recommendations)
 # --------------------------------------------------------------------------- #
 def page_predict(model, scaler, encoders):
-    st.header("🧮 Predict a New Student")
+    st.header("ð¦ Predict a New Student")
     st.caption("Enter a student's details to get a live, out-of-sample performance prediction and tailored recommendations.")
 
     with st.form("predict_form"):
         c1, c2 = st.columns(2)
         with c1:
-            attendance_rate = st.slider("Attendance Rate (%)", 0.0, 100.0, 80.0)
-            study_hours = st.slider("Study Hours per Week", 0.0, 40.0, 12.0)
-            previous_grade = st.slider("Previous Grade", 0.0, 100.0, 75.0)
-            extracurricular = st.selectbox("Extracurricular Activities (count)", [0, 1, 2, 3, 4])
+            attendance_rate = st.slider(
+                "Attendance Rate (%)", 
+                0.0, 100.0, 80.0,
+                help="Higher attendance rates are strongly correlated with better academic performance."
+            )
+            study_hours = st.slider(
+                "Study Hours per Week", 
+                0.0, 40.0, 12.0,
+                help="Aim for consistent study habits; 12+ hours per week is often beneficial."
+            )
+            previous_grade = st.slider(
+                "Previous Grade", 
+                0.0, 100.0, 75.0,
+                help="Strong foundational knowledge from previous coursework supports current performance."
+            )
+            extracurricular = st.selectbox(
+                "Extracurricular Activities (count)", 
+                [0, 1, 2, 3, 4],
+                help="Balanced extracurricular participation can improve engagement and time management."
+            )
         with c2:
-            gender = st.selectbox("Gender", list(encoders["gender_encoder"].classes_))
-            parental_support = st.selectbox("Parental Support", list(encoders["parental_support_map"].keys()))
-            online_classes = st.checkbox("Takes Online Classes", value=False)
+            gender = st.selectbox(
+                "Gender", 
+                list(encoders["gender_encoder"].classes_),
+                help="Select the student's gender."
+            )
+            parental_support = st.selectbox(
+                "Parental Support", 
+                list(encoders["parental_support_map"].keys()),
+                help="Level of parental/guardian involvement in academic planning."
+            )
+            online_classes = st.checkbox(
+                "Takes Online Classes", 
+                value=False,
+                help="Check if the student primarily attends classes online."
+            )
 
         submitted = st.form_submit_button("Predict")
 
     if not submitted:
         return
+
+    gender_enc = encoders["gender_encoder"].transform([gender])[0]
+    parental_enc = encoders["parental_support_map"][parental_support]
+    online_enc = int(online_classes)
+
+    row = pd.DataFrame([{
+        "AttendanceRate": attendance_rate,
+        "StudyHoursPerWeek": study_hours,
+        "PreviousGrade": previous_grade,
+        "ExtracurricularActivities": extracurricular,
+        "Gender_enc": gender_enc,
+        "ParentalSupport_enc": parental_enc,
+        "OnlineClasses_enc": online_enc,
+    }])[FEATURE_COLUMNS]
+
+    # Random Forest was trained on unscaled features (see notebook, Module 3.6-3.7)
+    predicted_level = model.predict(row)[0]
+    probabilities = model.predict_proba(row)[0]
+    prob_df = pd.DataFrame({"Performance Level": model.classes_, "Probability": probabilities}).set_index(
+        "Performance Level"
+    ).reindex(LEVEL_ORDER)
+
+    st.divider()
+    st.subheader("Prediction")
+    st.metric("Predicted Performance Level", predicted_level)
+    st.bar_chart(prob_df)
+
+    # Explanation section
+    st.subheader("Why this prediction?")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"- **Attendance Rate**: {attendance_rate:.1f}%")
+        st.write(f"- **Study Hours/Week**: {study_hours:.1f}")
+        st.write(f"- **Previous Grade**: {previous_grade:.1f}")
+        st.write(f"- **Extracurricular Activities**: {extracurricular}")
+    with col2:
+        st.write(f"- **Gender**: {gender}")
+        st.write(f"- **Parental Support**: {parental_support}")
+        st.write(f"- **Online Classes**: {'Yes' if online_classes else 'No'}")
+        st.write(f"- **Model Confidence**: {prob_df['Probability'].max():.2%}")
+
+    st.subheader("Recommendations")
+    tips = generate_recommendations(attendance_rate, study_hours, previous_grade,
+                                     extracurricular, parental_support, predicted_level)
+    for tip in tips:
+        st.write(f"- {tip}")
 
     gender_enc = encoders["gender_encoder"].transform([gender])[0]
     parental_enc = encoders["parental_support_map"][parental_support]
