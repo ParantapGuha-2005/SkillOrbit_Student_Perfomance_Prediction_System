@@ -590,6 +590,11 @@ def page_trends(df):
 
     st.header("\U0001F4C9 Performance Trends")  # 📉
 
+    # Persist the bucket choice across reruns so the plot (drawn first) can use it
+    # even though the radio widget itself is rendered further down the page.
+    if "trend_bucket_col" not in st.session_state:
+        st.session_state.trend_bucket_col = "AttendanceRate"
+
     col1, col2 = st.columns(2)
 
     with col1:
@@ -607,8 +612,8 @@ def page_trends(df):
 
     with col2:
         st.subheader("Attendance & Study Hours Trend")
-        bucket_col = st.radio("Bucket by", ["AttendanceRate", "StudyHoursPerWeek"], horizontal=True)
 
+        bucket_col = st.session_state.trend_bucket_col
         bucketed = pd.cut(df[bucket_col], bins=8)
         trend = df.groupby(bucketed, observed=True)["FinalGrade"].mean().reset_index()
         trend[bucket_col] = trend[bucket_col].astype(str)
@@ -622,6 +627,13 @@ def page_trends(df):
         st.pyplot(fig, use_container_width=False)
         plt.close(fig)
 
+        # Radio now appears below the plot; updates session_state and triggers a rerun
+        st.radio(
+            "Bucket by",
+            ["AttendanceRate", "StudyHoursPerWeek"],
+            horizontal=True,
+            key="trend_bucket_col",
+        )
 
 # --------------------------------------------------------------------------- #
 # Page: Predict a New Student (live model + recommendations)
