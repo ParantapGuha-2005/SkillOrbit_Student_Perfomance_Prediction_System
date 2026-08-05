@@ -453,7 +453,7 @@ def page_student_explorer(df):
             ">
                 <p style="margin:0; font-size:1rem; color: rgba(255,255,255,0.6);">Predicted Level</p>
                 <div style="display:flex; align-items:center; gap:0.6rem; margin-top:0.3rem;">
-                    <span style="font-size:2.1rem; font-weight:600;">{student['PredictedLevel']}</span>
+                    <span style="font-size:2.1rem; font-weight:300;">{student['PredictedLevel']}</span>
                     <span style="
                         background:{badge_color};
                         color:{badge_text_color};
