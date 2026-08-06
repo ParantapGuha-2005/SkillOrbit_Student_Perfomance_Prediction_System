@@ -728,18 +728,6 @@ def page_predict(model, scaler, encoders):
             div[data-testid="stSlider"] {
                 padding-bottom: 0.4rem;
             }
-            /* Reduce the space between a radio label and its options */
-            div[data-testid="stRadio"] > label {
-                margin-bottom: -12px !important;
-            }
-            /* Reduce the bottom spacing after the radio group */
-            div[data-testid="stRadio"] {
-                margin-bottom: -10px !important;
-            }
-            /* reduce spacing between consecutive widgets */
-            div[data-testid="stVerticalBlock"] > div:has(div[data-testid="stRadio"]) {
-                margin-bottom: -8px !important;
-            }
         </style>
         """,
         unsafe_allow_html=True,
@@ -778,17 +766,18 @@ def page_predict(model, scaler, encoders):
                 [0, 1, 2, 3, 4],
                 help="Balanced extracurricular participation can improve engagement and time management."
             )
-            gender = st.radio(
-                "Gender",
-                options=list(encoders["gender_encoder"].classes_),
-                horizontal=True,
-                help="Select the student's gender."
-            )
-            parental_support = st.radio(
-                "Parental Support",
-                options=list(encoders["parental_support_map"].keys()),
-                horizontal=True,
-                help="Level of parental/guardian involvement in academic planning."
+            g_col, p_col = st.columns(2)
+            with g_col:
+                gender = st.radio(
+                    "Gender",
+                    list(encoders["gender_encoder"].classes_),
+                    horizontal=True,
+                )
+            with p_col:
+                parental_support = st.radio(
+                    "Parental Support",
+                    list(encoders["parental_support_map"].keys()),
+                    horizontal=True,
             )
             online_classes = st.checkbox(
                 "Takes Online Classes",
