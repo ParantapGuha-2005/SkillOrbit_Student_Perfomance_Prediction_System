@@ -766,7 +766,7 @@ def page_predict(model, scaler, encoders):
                 [0, 1, 2, 3, 4],
                 help="Balanced extracurricular participation can improve engagement and time management."
             )
-            g_col, p_col = st.columns(2)
+            g_col, p_col = st.columns([1, 2])
             with g_col:
                 gender = st.radio(
                     "Gender",
