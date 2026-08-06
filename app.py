@@ -778,27 +778,17 @@ def page_predict(model, scaler, encoders):
                 [0, 1, 2, 3, 4],
                 help="Balanced extracurricular participation can improve engagement and time management."
             )
-            g1, g2 = st.columns([1, 3])
-            with g1:
-                st.markdown("**Gender**")
-            with g2:
-                gender = st.radio(
-                "",
+            gender = st.radio(
+                "Gender",
                 options=list(encoders["gender_encoder"].classes_),
                 horizontal=True,
-                label_visibility="collapsed",
-                help="Select the Student's Gender.",
+                help="Select the student's gender."
             )
-            p1, p2 = st.columns([1, 3])
-            with p1:
-                st.markdown("**Parental Support**")
-            with p2:
-                parental_support = st.radio(
-                " ",
+            parental_support = st.radio(
+                "Parental Support",
                 options=list(encoders["parental_support_map"].keys()),
                 horizontal=True,
-                label_visibility="collapsed",
-                help="Level of parental/guardian involvement in academic planning.",
+                help="Level of parental/guardian involvement in academic planning."
             )
             online_classes = st.checkbox(
                 "Takes Online Classes",
