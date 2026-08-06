@@ -775,12 +775,14 @@ def page_predict(model, scaler, encoders):
                     "Gender",
                     list(encoders["gender_encoder"].classes_),
                     horizontal=True,
+                    help="Select the student's gender."
                 )
             with p_col:
                 parental_support = st.radio(
                     "Parental Support",
                     list(encoders["parental_support_map"].keys()),
                     horizontal=True,
+                    help="Level of parental/guardian involvement in academic planning."
             )
             st.write("")
             online_classes = st.checkbox(
@@ -875,11 +877,27 @@ def page_predict(model, scaler, encoders):
                 unsafe_allow_html=True,
             )
 
-        view = st.selectbox("Select a view", ["Probability Chart", "Recommendations"])
+        view = st.selectbox("", ["Probability Chart", "Recommendations"])
 
+        import altair as alt
         if view == "Probability Chart":
-            # Explicit height keeps the Vega-Lite chart from rendering taller than the viewport
-            st.bar_chart(result["prob_df"], height=260)
+            prob_df = result["prob_df"].reset_index()
+            prob_df.columns = ["Performance Level", "Probability"]
+            chart = (
+                alt.Chart(prob_df)
+                .mark_bar()
+                .encode(
+                    x=alt.X(
+                        "Performance Level:N",
+                        sort=LEVEL_ORDER,
+                        axis=alt.Axis(labelAngle=0)  # Horizontal labels
+                    ),
+                    y=alt.Y("Probability:Q", title="Probability"),
+                    tooltip=["Performance Level", alt.Tooltip("Probability:Q", format=".2%")],
+                )
+                .properties(height=260)
+            )
+            st.altair_chart(chart, use_container_width=True)
         else:
             st.markdown("**\U0001F4A1 Recommendations**")  # 💡
             tips = generate_recommendations(
