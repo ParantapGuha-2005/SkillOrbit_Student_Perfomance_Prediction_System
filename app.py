@@ -782,6 +782,7 @@ def page_predict(model, scaler, encoders):
                     list(encoders["parental_support_map"].keys()),
                     horizontal=True,
             )
+            st.write("")
             online_classes = st.checkbox(
                 "Takes Online Classes",
                 value=False,
