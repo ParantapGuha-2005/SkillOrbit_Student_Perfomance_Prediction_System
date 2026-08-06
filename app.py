@@ -285,14 +285,12 @@ def page_overview(df, comparison_df):
         plt.close(fig)
 
     else:
-        st.subheader("Model Comparison (Test Set)")
-        st.caption(
-            "Accuracy / Weighted F1 / Macro F1 across all trained models — "
-        )
-
         col1, col2 = st.columns([1, 1.2])
-
         with col1:
+            st.subheader("Model Comparison (Test Set)")
+            st.caption(
+                "Accuracy / Weighted F1 / Macro F1 across all trained models — "
+            )
             table_height = HEADER_PX + ROW_PX * len(comparison_df)
             st.dataframe(
                 comparison_df.style.format("{:.2f}"),
