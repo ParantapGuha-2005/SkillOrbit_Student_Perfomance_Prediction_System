@@ -878,7 +878,12 @@ def page_predict(model, scaler, encoders):
             )
 
         view = st.selectbox("", ["Probability Chart", "Recommendations"])
-
+        LEVEL_ORDER = ["Low", "Average", "High"]
+        LEVEL_COLORS = {
+            "Low": "#E74C3C",       # Red
+            "Average": "#F39C12",   # Orange
+            "High": "#2ECC71",      # Green
+        }
         import altair as alt
         if view == "Probability Chart":
             prob_df = result["prob_df"].reset_index()
@@ -893,9 +898,23 @@ def page_predict(model, scaler, encoders):
                         axis=alt.Axis(labelAngle=0)  # Horizontal labels
                     ),
                     y=alt.Y("Probability:Q", title="Probability"),
+                    color=alt.Color(
+                       "Performance Level:N",
+                        scale=alt.Scale(
+                            domain=LEVEL_ORDER,
+                            range=[
+                                LEVEL_COLORS["Low"],
+                                LEVEL_COLORS["Average"],
+                                LEVEL_COLORS["High"],
+                            ],
+                        ),
+                        legend=None,      # Hide legend since colors are self-explanatory
+                    ),
                     tooltip=["Performance Level", alt.Tooltip("Probability:Q", format=".2%")],
                 )
-                .properties(height=260)
+                .properties(
+                    height=300    # Increase height
+                )
             )
             st.altair_chart(chart, use_container_width=True)
         else:
