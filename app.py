@@ -234,7 +234,7 @@ def page_overview(df, comparison_df):
                 margin: 0.2rem 0 0.6rem 0 !important;
             }
             div[data-testid="stImage"] img {
-                max-height: 45vh;
+                max-height: 50vh;
                 width: auto;
                 margin: 0 auto;
                 display: block;
