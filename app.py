@@ -299,7 +299,7 @@ def page_overview(df, comparison_df):
             )
 
         with col2:
-            str.write("")
+            st.subheader("")
             fig, ax = plt.subplots(figsize=(8, 4))
             (comparison_df / 100).plot(kind="bar", ax=ax, colormap="viridis")
             ax.set_ylabel("Score")
