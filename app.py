@@ -878,7 +878,6 @@ def page_predict(model, scaler, encoders):
             )
 
         view = st.selectbox("", ["Probability Chart", "Recommendations"])
-        LEVEL_ORDER = ["Low", "Average", "High"]
         LEVEL_COLORS = {
             "Low": "#E74C3C",       # Red
             "Average": "#F39C12",   # Orange
