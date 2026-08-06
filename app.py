@@ -728,6 +728,9 @@ def page_predict(model, scaler, encoders):
             div[data-testid="stSlider"] {
                 padding-bottom: 0.4rem;
             }
+            div[role="radiogroup"]{
+                gap:0.5rem !important;
+            }
         </style>
         """,
         unsafe_allow_html=True,
@@ -766,7 +769,7 @@ def page_predict(model, scaler, encoders):
                 [0, 1, 2, 3, 4],
                 help="Balanced extracurricular participation can improve engagement and time management."
             )
-            g_col, p_col = st.columns([1, 2])
+            g_col, p_col = st.columns([1, 1.5])
             with g_col:
                 gender = st.radio(
                     "Gender",
