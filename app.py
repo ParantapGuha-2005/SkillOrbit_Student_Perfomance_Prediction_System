@@ -273,7 +273,7 @@ def page_overview(df, comparison_df):
 
     if view == "Performance Level Distribution":
         st.subheader("Performance Level Distribution")
-        fig, ax = plt.subplots(figsize=(5, 3))
+        fig, ax = plt.subplots(figsize=(6, 3))
         sns.countplot(
             data=df, x="PerformanceLevel", order=LEVEL_ORDER,
             palette=[LEVEL_COLORS[l] for l in LEVEL_ORDER], ax=ax
