@@ -234,7 +234,7 @@ def page_overview(df, comparison_df):
                 margin: 0.2rem 0 0.6rem 0 !important;
             }
             div[data-testid="stImage"] img {
-                max-height: 50vh;
+                max-height: 40vh;
                 width: auto;
                 margin: 0 auto;
                 display: block;
@@ -273,7 +273,7 @@ def page_overview(df, comparison_df):
 
     if view == "Performance Level Distribution":
         st.subheader("Performance Level Distribution")
-        fig, ax = plt.subplots(figsize=(6, 2.5))
+        fig, ax = plt.subplots(figsize=(5, 3))
         sns.countplot(
             data=df, x="PerformanceLevel", order=LEVEL_ORDER,
             palette=[LEVEL_COLORS[l] for l in LEVEL_ORDER], ax=ax
